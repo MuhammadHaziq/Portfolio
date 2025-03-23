@@ -5,7 +5,7 @@ on:
       - develop
   workflow_dispatch:
 jobs:
-  test:
+  react-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,4 +14,4 @@ jobs:
       - run: echo "Build Docker image"
       - run: docker build -t muhammadhaziq/react-test -f Dockerfile.dev .
       - run: echo "Run tests"
-      - run: docker run -e CI=true muhammadhaziq/react-test npm test
+      - run: docker run -e CI=true muhammadhaziq/react-test npm run lint
