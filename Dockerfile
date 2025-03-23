@@ -1,13 +1,21 @@
-FROM node:lts-alpine
+FROM node:lts-alpine AS builder
 
 WORKDIR /app
 
-COPY  ./package.json ./package-lock.json ./
+COPY ./package.json ./package.json.lock ./
 
 RUN npm install
 
 COPY . .
 
-EXPOSE 3000
+RUN npm run build
 
-CMD ["npm", "run", "dev"]
+FROM nginx:alpine
+
+WORKDIR /usr/share/nginx/html
+
+RUN rm -rf ./*
+
+COPY --from=builder /app/build /usr/share/nginx/html
+
+EXPOSE 80
