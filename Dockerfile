@@ -16,6 +16,7 @@ WORKDIR /usr/share/nginx/html
 
 RUN rm -rf ./*
 
-COPY --from=builder /app/build /usr/share/nginx/html
+COPY --from=builder /app/.next /app/.next
+COPY --from=builder /app/public /app/public
 
 EXPOSE 80
