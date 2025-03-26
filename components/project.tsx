@@ -3,7 +3,8 @@
 import { useRef } from "react";
 import { projectsData } from "@/lib/data";
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useScroll, useTransform } from "framer-motion";
+import { MotionDiv } from "./Motion/MotionWrapper";
 
 type ProjectProps = (typeof projectsData)[number];
 
@@ -15,14 +16,14 @@ export default function Project({
 }: ProjectProps) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
-    target: ref,
+    target: ref as React.RefObject<HTMLElement>,
     offset: ["0 1", "1.33 1"],
   });
   const scaleProgess = useTransform(scrollYProgress, [0, 1], [0.8, 1]);
   const opacityProgess = useTransform(scrollYProgress, [0, 1], [0.6, 1]);
 
   return (
-    <motion.div
+    <MotionDiv
       ref={ref}
       style={{
         scale: scaleProgess,
@@ -66,6 +67,6 @@ export default function Project({
         group-even:right-[initial] group-even:-left-40"
         />
       </section>
-    </motion.div>
+    </MotionDiv>
   );
 }
