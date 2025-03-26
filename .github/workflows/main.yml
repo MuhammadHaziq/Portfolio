@@ -19,7 +19,7 @@ jobs:
       - name: Build Docker Image
         run: docker build -t muhammadhaziq/react-cicd-app .
       - name: Push Docker Image
-        run: docker run -e CI=true muhammadhaziq/react-test npm run lint
+        run: docker run -e CI=true muhammadhaziq/react-cicd-app npm run lint
 
   react-build:
     needs: react-lint # Ensure build completes before deploying
