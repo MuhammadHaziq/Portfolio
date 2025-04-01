@@ -12,6 +12,6 @@ jobs:
       - run: echo "Login to Docker Hub"
       - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       - run: echo "Build Docker image"
-      - run: docker build -t muhammadhaziq/react-test -f Dockerfile.dev .
+      - run: docker build -t muhammadhaziq/portfolio -f Dockerfile.dev .
       - run: echo "Run tests"
-      - run: docker run -e CI=true muhammadhaziq/react-test npm run lint
+      - run: docker run -e CI=true muhammadhaziq/portfolio npm run lint
