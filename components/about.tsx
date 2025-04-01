@@ -2,14 +2,14 @@
 
 import React from "react";
 import SectionHeading from "./section-heading";
-import { motion } from "framer-motion";
 import { useSectionInView } from "@/lib/hooks";
+import { MotionSection } from "./Motion/MotionSectionWrapper";
 
 export default function About() {
   const { ref } = useSectionInView("About");
 
   return (
-    <motion.section
+    <MotionSection
       ref={ref}
       className="mb-28 max-w-[45rem] text-center leading-8 sm:mb-40 scroll-mt-28"
       initial={{ opacity: 0, y: 100 }}
@@ -48,6 +48,6 @@ export default function About() {
         learning about{" "}
         <span className="font-medium">Devops (Docker, CICD)</span>.
       </p>
-    </motion.section>
+    </MotionSection>
   );
 }

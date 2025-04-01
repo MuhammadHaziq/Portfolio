@@ -1,0 +1,43 @@
+# version: "3.8"
+
+# services:
+#   react-lint:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile.dev
+#       name: react-lint
+#     ports:
+#       - "3000:3000"
+#     volumes:
+#       - /app/node_modules
+#       - .:/app
+#     command: ["npm", "run", "lint"]
+
+#   react-app:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile.dev
+#       name: react-app
+#     ports:
+#       - "3000:3000"
+#     volumes:
+#       - /app/node_modules
+#       - .:/app
+# networks:
+#   my-network:
+#     driver: bridge
+version: "3.8"
+services:
+  nextjs:
+    build: .
+    container_name: portfolio
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - nextjs

@@ -1,0 +1,65 @@
+name: Production-Deploy
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  react-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Soruce Code
+        uses: actions/checkout@v4
+      - name: Login to Gocker Hub
+        run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
+      - name: Build Docker Image
+        run: docker build -t muhammadhaziq/portfolio .
+      - name: Push Docker Image
+        run: docker run -e CI=true muhammadhaziq/portfolio npm run lint
+
+  react-build:
+    needs: react-lint # Ensure build completes before deploying
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Soruce Code
+        uses: actions/checkout@v4
+      - name: Login to Gocker Hub
+        run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
+      - name: Build Docker Image
+        run: docker build -t muhammadhaziq/portfolio .
+      - name: Push Docker Image
+        run: docker push muhammadhaziq/portfolio
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: react-build # Ensure build completes before deploying
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
+
+      - name: Install Elastic Beanstalk CLI
+        run: |
+          pip install awsebcli --upgrade
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to AWS Elastic Beanstalk
+        run: |
+          eb init ${{ secrets.EB_APP_NAME }} --region ${{ secrets.AWS_REGION }} --platform "Node.js 18"
+          eb use ${{ secrets.EB_ENV_NAME }}
+          eb deploy
