@@ -17,9 +17,9 @@ jobs:
       - name: Login to Gocker Hub
         run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
       - name: Build Docker Image
-        run: docker build -t muhammadhaziq/react-cicd-app .
+        run: docker build -t muhammadhaziq/portfolio .
       - name: Push Docker Image
-        run: docker run -e CI=true muhammadhaziq/react-test npm run lint
+        run: docker run -e CI=true muhammadhaziq/portfolio npm run lint
 
   react-build:
     needs: react-lint # Ensure build completes before deploying
@@ -30,9 +30,9 @@ jobs:
       - name: Login to Gocker Hub
         run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
       - name: Build Docker Image
-        run: docker build -t muhammadhaziq/react-cicd-app .
+        run: docker build -t muhammadhaziq/portfolio .
       - name: Push Docker Image
-        run: docker push muhammadhaziq/react-cicd-app
+        run: docker push muhammadhaziq/portfolio
 
   deploy:
     if: github.event_name == 'push'
