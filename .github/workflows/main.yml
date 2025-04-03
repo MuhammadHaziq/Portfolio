@@ -41,7 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-      - run: docker build -t muhammadhaziq/portfolio .
+      - run: docker build -t muhammadhaziq/portfolio . --progress=plain
       - run: docker run -e CI=true muhammadhaziq/portfolio npm run lint
 
       - name: Generate deployment package
