@@ -1,8 +1,8 @@
-# FROM  node:18.17.0-alpine AS builder
+# FROM node:lts-alpine AS builder
 
 # WORKDIR /app
 
-# COPY package*.json ./
+# COPY /package*.json ./
 
 # RUN npm install
 
@@ -10,63 +10,60 @@
 
 # RUN npm run build
 
-# FROM nginx:alpine
+# ############################################################################
+#     # Coply build Data in NGINX Server for Production Level
+# ############################################################################
+
+# FROM nginx:latest
 
 # WORKDIR /usr/share/nginx/html
 
-# # Remove default nginx static files
-# RUN rm -rf ./*
+# COPY --from=builder /app/.next .
+# COPY --from=builder /app/nginx.conf /etc/nginx/conf.d/default.conf
 
-# # Copy built Next.js files
-# # COPY --from=builder /app/.next /usr/share/nginx/html/.next
-# # COPY --from=builder /app/public /usr/share/nginx/html/public
-# COPY --from=builder /app/next.config.js ./next.config.js
-# COPY --from=builder /app/public ./public
-# COPY --from=builder /app/.next ./.next
-# COPY --from=builder /app/node_modules ./node_modules
-# COPY --from=builder /app/package.json ./package.json
-
-# # Fix permissions for Nginx
-# RUN chmod -R 755 /usr/share/nginx/html && chown -R nginx:nginx /usr/share/nginx/html
-
-# # Copy the custom Nginx config
-# COPY ./nginx.conf /etc/nginx/nginx.conf
-
-# # Expose the correct port
 # EXPOSE 80
-
-# # Start Nginx
 # CMD ["nginx", "-g", "daemon off;"]
 
-# COPY --from=builder /app/next.config.js ./next.config.js
-# COPY --from=builder /app/public ./public
-# COPY --from=builder /app/.next ./.next
-# COPY --from=builder /app/node_modules ./node_modules
-# COPY --from=builder /app/package.json ./package.json
-
-# Build stage
-FROM node:18-alpine AS builder
+# Stage 1: Build Next.js app
+FROM node:lts-alpine AS builder
 
 WORKDIR /app
 
 COPY package*.json ./
-
 RUN npm install
 
 COPY . .
 
+ENV NODE_ENV=production
+
 RUN npm run build
 
-# Production stage
-FROM node:18-alpine
+# Stage 2: Final image with NGINX + Node.js for SSR
+FROM node:lts-alpine
 
+# Install NGINX and other dependencies
+RUN apk add --no-cache nginx bash curl
+
+# Create app directories
 WORKDIR /app
 
-COPY --from=builder /app ./
+# Copy built app from builder
+COPY --from=builder /app /app
 
-ENV NODE_ENV=production
-ENV PORT=80
+# Copy NGINX config
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY default.conf /etc/nginx/conf.d/default.conf
+
+# Copy custom start script to run both Node.js and NGINX
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Logs directories for NGINX
+RUN mkdir -p /run/nginx /var/log/nginx && \
+    touch /var/log/nginx/access.log /var/log/nginx/error.log
+
+ENV NODE_ENV production
 
 EXPOSE 80
 
-CMD ["npm", "start"]
+CMD ["/start.sh"]
