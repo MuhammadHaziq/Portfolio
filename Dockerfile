@@ -38,7 +38,13 @@
 # # Start Nginx
 # CMD ["nginx", "-g", "daemon off;"]
 
-# Build stage
+# COPY --from=builder /app/next.config.js ./next.config.js
+# COPY --from=builder /app/public ./public
+# COPY --from=builder /app/.next ./.next
+# COPY --from=builder /app/node_modules ./node_modules
+# COPY --from=builder /app/package.json ./package.json
+
+
 FROM node:18.17.0-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
@@ -46,16 +52,11 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Production stage
 FROM node:18.17.0-alpine
 WORKDIR /app
-# Copy the built application from the builder stage
 COPY --from=builder /app ./
+EXPOSE 80
 
-# COPY --from=builder /app/next.config.js ./next.config.js
-# COPY --from=builder /app/public ./public
-# COPY --from=builder /app/.next ./.next
-# COPY --from=builder /app/node_modules ./node_modules
-# COPY --from=builder /app/package.json ./package.json
-
+# Forward port 80 to your app's port, if needed
+ENV PORT=80
 CMD ["npm", "start"]
