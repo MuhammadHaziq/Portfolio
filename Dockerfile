@@ -44,19 +44,29 @@
 # COPY --from=builder /app/node_modules ./node_modules
 # COPY --from=builder /app/package.json ./package.json
 
+# Build stage
+FROM node:18-alpine AS builder
 
-FROM node:18.17.0-alpine AS builder
 WORKDIR /app
+
 COPY package*.json ./
+
 RUN npm install
+
 COPY . .
+
 RUN npm run build
 
-FROM node:18.17.0-alpine
+# Production stage
+FROM node:18-alpine
+
 WORKDIR /app
+
 COPY --from=builder /app ./
+
+ENV NODE_ENV=production
+ENV PORT=80
+
 EXPOSE 80
 
-# Forward port 80 to your app's port, if needed
-ENV PORT=80
 CMD ["npm", "start"]

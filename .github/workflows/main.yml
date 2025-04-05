@@ -45,7 +45,7 @@ jobs:
       - run: docker run -e CI=true muhammadhaziq/portfolio npm run lint
 
       - name: Generate deployment package
-        run: zip -r deploy.zip . -x '*.git*'
+        run: zip -r deploy.zip . -x '*.git*' -x 'node_modules/*' -x 'docker-compose.yml'
 
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v18
